@@ -11,13 +11,13 @@ import chainerui.utils
 import sys
 
 # modules
-import log_initializer
-import config
-import custom_extensions
-import custom_converters
-import datasets
-import models
-import transforms
+from scripts import log_initializer
+from config import DefaultConfig
+from scripts import custom_extensions
+from scripts import custom_converters
+import scripts.datasets as datasets
+import scripts.models as models
+import scripts.transforms as transforms
 
 # logging
 from logging import getLogger, INFO
@@ -28,13 +28,13 @@ logger = getLogger(__name__)
 
 def parse_arguments(argv):
     parser = argparse.ArgumentParser(description='Training Script')
-    parser.add_argument('--config', '-c', default='config.json',
-                        help='Configure json filepath')
+    # parser.add_argument('--config', '-c', default='config.json',
+    #                     help='Configure json filepath')
     parser.add_argument('--batchsize', '-b', type=int, default=1,
                         help='Number of images in each mini-batch')
     parser.add_argument('--max_iteration', '-e', type=int, default=30000,
                         help='Number of sweeps over the dataset to train')
-    parser.add_argument('--gpus', '-g', type=int, default=[-1], nargs='*',
+    parser.add_argument('--gpus', '-g', type=int, default=[0], nargs='*',
                         help='GPU IDs (negative value indicates CPU)')
     parser.add_argument('--lr', type=float, default=1e-4,
                         help='Initial learning rate')
@@ -227,14 +227,14 @@ def main(argv):
     args = parse_arguments(argv)
 
     # Load config
-    config.load(args.config)
+    conf = DefaultConfig()
 
     # Setup dataset
-    train, test = setup_dataset(args.mode, config.img_crop_dir,
-                                config.img_mask_dir, config.img_mean_mask_dir,
-                                config.img_mean_grid_dir,
-                                config.img_trimap_dir, config.img_alpha_dir,
-                                config.img_alpha_weight_dir)
+    train, test = setup_dataset(args.mode, conf.img_crop_dir,
+                                conf.img_mask_dir, conf.img_mean_mask_dir,
+                                conf.img_mean_grid_dir,
+                                conf.img_trimap_dir, conf.img_alpha_dir,
+                                conf.img_alpha_weight_dir)
 
     # Setup iterators
     train_iter, test_iter = setup_iterators(args.gpus, args.batchsize, train,

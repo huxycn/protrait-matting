@@ -52,7 +52,7 @@ class FaceDetector(object):
             bz2_path = os.path.basename(url)
 
             logger.info('Download to "%s"', bz2_path)
-            urllib.request.urlretrieve(url, bz2_path)
+            # urllib.request.urlretrieve(url, bz2_path)
 
             logger.info('Expand to "%s"', predictor_path)
             data = bz2.BZ2File(bz2_path).read()

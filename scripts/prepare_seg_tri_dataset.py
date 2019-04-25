@@ -16,9 +16,9 @@ import numpy as np
 import scipy.sparse
 
 # modules
-import log_initializer
-import config
-from datasets import get_valid_names
+from scripts import log_initializer
+from config import DefaultConfig
+from scripts.datasets import get_valid_names
 
 # logging
 from logging import getLogger, INFO
@@ -62,26 +62,19 @@ def compute_trimap_from_alpha(name, src_dir, dst_dir, open_size=10,
 
 def main():
     # Argument
-    parser = argparse.ArgumentParser(description='Dataset Preparing Script')
-    parser.add_argument('--config', '-c', default='config.json',
-                        help='Load config from given json file')
-    args = parser.parse_args()
-
-    # Load config
-    config.load(args.config)
-
+    conf = DefaultConfig()
     # Get valid names for alpha matting
-    names = get_valid_names(config.img_crop_dir, config.img_mask_dir,
-                            config.img_mean_mask_dir, config.img_mean_grid_dir,
-                            config.img_alpha_dir,
+    names = get_valid_names(conf.img_crop_dir, conf.img_mask_dir,
+                            conf.img_mean_mask_dir, conf.img_mean_grid_dir,
+                            conf.img_alpha_dir,
                             rm_exts=[False, False, False, True, False])
 
     # Compute trimap
     logger.info('Compute weight matrix for each image')
-    os.makedirs(config.img_trimap_dir, exist_ok=True)
+    os.makedirs(conf.img_trimap_dir, exist_ok=True)
     for name in names:
-        compute_trimap_from_alpha(name, config.img_alpha_dir,
-                                  config.img_trimap_dir)
+        compute_trimap_from_alpha(name, conf.img_alpha_dir,
+                                  conf.img_trimap_dir)
 
 
 if __name__ == '__main__':

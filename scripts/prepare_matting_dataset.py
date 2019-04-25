@@ -16,9 +16,9 @@ import numpy as np
 import scipy.sparse
 
 # modules
-import log_initializer
-import config
-from datasets import get_valid_names
+from scripts import log_initializer
+from config import DefaultConfig
+from scripts.datasets import get_valid_names
 
 # logging
 from logging import getLogger, INFO
@@ -100,46 +100,37 @@ def compute_weights(name, src_dir, dst_dir, weight_lut):
 
 
 def main():
-    # Argument
-    parser = argparse.ArgumentParser(description='Dataset Preparing Script')
-    parser.add_argument('--config', '-c', default='config.json',
-                        help='Load config from given json file')
-    parser.add_argument('--pseudo_alpha', action='store_true',
-                        help='Dummy alpha generation')
-    args = parser.parse_args()
+    conf = DefaultConfig()
 
-    # Load config
-    config.load(args.config)
-
-    if args.pseudo_alpha:
+    if conf.pseudo_alpha:
         logger.info('Compute pseudo alpha images')
         # Get valid names in 6 channel segmentation stage
-        names = get_valid_names(config.img_crop_dir, config.img_mask_dir,
-                                config.img_mean_mask_dir,
-                                config.img_mean_grid_dir,
+        names = get_valid_names(conf.img_crop_dir, conf.img_mask_dir,
+                                conf.img_mean_mask_dir,
+                                conf.img_mean_grid_dir,
                                 rm_exts=[False, False, False, True])
         # Create pseudo alpha images
-        os.makedirs(config.img_alpha_dir, exist_ok=True)
+        os.makedirs(conf.img_alpha_dir, exist_ok=True)
         for name in names:
-            create_pseudo_alpha(name, config.img_mask_dir,
-                                config.img_alpha_dir)
+            create_pseudo_alpha(name, conf.img_mask_dir,
+                                conf.img_alpha_dir)
 
     # Get valid names for alpha matting
-    names = get_valid_names(config.img_crop_dir, config.img_mask_dir,
-                            config.img_mean_mask_dir, config.img_mean_grid_dir,
-                            config.img_alpha_dir,
+    names = get_valid_names(conf.img_crop_dir, conf.img_mask_dir,
+                            conf.img_mean_mask_dir, conf.img_mean_grid_dir,
+                            conf.img_alpha_dir,
                             rm_exts=[False, False, False, True, False])
 
     # Pre-compute look up table for weights
     logger.info('Compute look up table for weights')
-    weight_lut = AlphaWeightLut(names, config.img_alpha_dir)
+    weight_lut = AlphaWeightLut(names, conf.img_alpha_dir)
 
     # Compute weight matrix
     logger.info('Compute weight matrix for each image')
-    os.makedirs(config.img_alpha_weight_dir, exist_ok=True)
+    os.makedirs(conf.img_alpha_weight_dir, exist_ok=True)
     for name in names:
-        compute_weights(name, config.img_alpha_dir,
-                        config.img_alpha_weight_dir, weight_lut)
+        compute_weights(name, conf.img_alpha_dir,
+                        conf.img_alpha_weight_dir, weight_lut)
 
 
 if __name__ == '__main__':

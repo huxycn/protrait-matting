@@ -12,14 +12,14 @@
 import argparse
 import os
 import cv2
-import glob
 import urllib.request
-import PIL.Image
 import scipy.io
 
 # modules
-import log_initializer
-import config
+from scripts import log_initializer
+from config import DefaultConfig
+
+conf = DefaultConfig()
 
 # logging
 from logging import getLogger, INFO
@@ -118,35 +118,26 @@ def parse_mask(mask_name, src_dir, img_name, dst_dir):
 
 
 def main():
-    # Argument
-    parser = argparse.ArgumentParser(description='Dataset Preparing Script')
-    parser.add_argument('--config', '-c', default='config.json',
-                        help='Load config from given json file')
-    args = parser.parse_args()
-
-    # Load config
-    config.load(args.config)
-
     # Load image urls
-    url_pairs = load_img_urls(config.org_imgurl_filepath)
+    url_pairs = load_img_urls(conf.org_imgurl_filepath)
     # Download
-    os.makedirs(config.img_raw_dir, exist_ok=True)
-    for name, url in url_pairs:
-        download_img(url, name, config.img_raw_dir)
+    os.makedirs(conf.img_raw_dir, exist_ok=True)
+    # for name, url in url_pairs:
+    #     download_img(url, name, conf.img_raw_dir)
 
     # Load crop rectangles
-    rect_pairs = load_crop_rects(config.org_crop_filepath)
+    rect_pairs = load_crop_rects(conf.org_crop_filepath)
     # Crop
     img_size = (600, 800)  # Decided by mask size
-    os.makedirs(config.img_crop_dir, exist_ok=True)
+    os.makedirs(conf.img_crop_dir, exist_ok=True)
     for name, rect in rect_pairs:
-        crop_img(name, config.img_raw_dir, config.img_crop_dir, rect, img_size)
+        crop_img(name, conf.img_raw_dir, conf.img_crop_dir, rect, img_size)
 
     # Parse masks
-    os.makedirs(config.img_mask_dir, exist_ok=True)
+    os.makedirs(conf.img_mask_dir, exist_ok=True)
     for name, _ in rect_pairs:
         mask_name = '{}_mask.mat'.format(os.path.splitext(name)[0])
-        parse_mask(mask_name, config.org_mask_dir, name, config.img_mask_dir)
+        parse_mask(mask_name, conf.org_mask_dir, name, conf.img_mask_dir)
 
 
 if __name__ == '__main__':
