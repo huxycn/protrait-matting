@@ -9,11 +9,11 @@ import numpy as np
 import chainer
 
 # modules
-import log_initializer
-import config
-from .face_mask import FaceMasker
-from . import models
-from . import transforms
+from scripts import log_initializer
+from config import DefaultConfig
+from scripts.face_mask import FaceMasker
+from scripts import models
+from scripts import transforms
 
 # logging
 from logging import getLogger, INFO
@@ -108,7 +108,7 @@ def main(argv):
                         help='Output image file path')
     parser.add_argument('--mode', choices=['seg', 'seg+', 'seg_tri', 'mat'],
                         help='Model mode', required=True)
-    parser.add_argument('--model_path', required=True,
+    parser.add_argument('--model_path', default='scripts/result/model_best',
                         help='Pretrained model path')
     parser.add_argument('--model_mode', default=None,
                         help='Mode for loading `model_path`')
@@ -119,12 +119,12 @@ def main(argv):
     inp_filepath, out_filepath = args.i, args.o
 
     # Load config
-    config.load(args.config)
+    conf = DefaultConfig()
 
     # Create predictor
     predictor = Predictor(args.mode, args.model_path, args.model_mode,
-                          args.gpu, config.face_predictor_filepath,
-                          config.mean_mask_filepath)
+                          args.gpu, conf.face_predictor_filepath,
+                          conf.mean_mask_filepath)
 
     # Load input image
     logger.info('Load input file: %s', inp_filepath)

@@ -16,7 +16,6 @@ import numpy as np
 
 # modules
 from scripts import log_initializer
-from config import DefaultConfig
 from scripts.datasets import PortraitSegDataset, split_dataset, get_valid_names
 from scripts.face_mask import FaceMasker
 
@@ -26,7 +25,9 @@ log_initializer.set_fmt()
 log_initializer.set_root_level(INFO)
 logger = getLogger(__name__)
 
-conf = DefaultConfig()
+from config import PathConfig
+
+path_conf = PathConfig()
 
 
 def align_mask(name, src_dir, dst_mask_dir, dst_grid_dir, face_masker):
@@ -63,24 +64,20 @@ def main():
     # Argument
 
     # Setup segmentation dataset
-    dataset = PortraitSegDataset(conf.img_crop_dir, conf.img_mask_dir)
+    dataset = PortraitSegDataset(path_conf.crop_imgs_dir, path_conf.img_masks_dir)
     # Split into train and test
     train_raw, _ = split_dataset(dataset)
 
     # Setup mean mask
-    face_masker = FaceMasker(conf.face_predictor_filepath,
-                             conf.mean_mask_filepath, train_raw)
+    face_masker = FaceMasker(path_conf.face_predictor_file_path,
+                             path_conf.mean_mask_file_path, train_raw)
 
     # Get valid names in 3 channel segmentation stage
-    names = get_valid_names(conf.img_crop_dir, conf.img_mask_dir)
+    names = get_valid_names(path_conf.crop_imgs_dir, path_conf.img_masks_dir)
 
-    # Start alignment
-    logger.info('Generate aligned mask and grids')
-    os.makedirs(conf.img_mean_mask_dir, exist_ok=True)
-    os.makedirs(conf.img_mean_grid_dir, exist_ok=True)
     for name in names:
-        align_mask(name, conf.img_crop_dir, conf.img_mean_mask_dir,
-                   conf.img_mean_grid_dir, face_masker)
+        align_mask(name, path_conf.crop_imgs_dir, path_conf.img_mean_mask_dir,
+                   path_conf.img_mean_grid_dir, face_masker)
 
 
 if __name__ == '__main__':

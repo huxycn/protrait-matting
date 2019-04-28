@@ -12,7 +12,7 @@ import sys
 
 # modules
 from scripts import log_initializer
-from config import DefaultConfig
+from config import PathConfig
 from scripts import custom_extensions
 from scripts import custom_converters
 import scripts.datasets as datasets
@@ -28,8 +28,6 @@ logger = getLogger(__name__)
 
 def parse_arguments(argv):
     parser = argparse.ArgumentParser(description='Training Script')
-    # parser.add_argument('--config', '-c', default='config.json',
-    #                     help='Configure json filepath')
     parser.add_argument('--batchsize', '-b', type=int, default=1,
                         help='Number of images in each mini-batch')
     parser.add_argument('--max_iteration', '-e', type=int, default=30000,
@@ -227,14 +225,17 @@ def main(argv):
     args = parse_arguments(argv)
 
     # Load config
-    conf = DefaultConfig()
+    path_conf = PathConfig()
 
     # Setup dataset
-    train, test = setup_dataset(args.mode, conf.img_crop_dir,
-                                conf.img_mask_dir, conf.img_mean_mask_dir,
-                                conf.img_mean_grid_dir,
-                                conf.img_trimap_dir, conf.img_alpha_dir,
-                                conf.img_alpha_weight_dir)
+    train, test = setup_dataset(args.mode,
+                                path_conf.crop_imgs_dir,
+                                path_conf.img_masks_dir,
+                                path_conf.img_mean_mask_dir,
+                                path_conf.img_mean_grid_dir,
+                                path_conf.img_trimap_dir,
+                                path_conf.img_alpha_dir,
+                                path_conf.img_alpha_weight_dir)
 
     # Setup iterators
     train_iter, test_iter = setup_iterators(args.gpus, args.batchsize, train,

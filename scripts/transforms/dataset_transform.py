@@ -20,13 +20,18 @@ def _create_seg_plus_input(img, mean_mask, mean_grid_x, mean_grid_y):
 
 def transform_seg(inputs):
     # Segmentation (BGR, Gray)
-    assert len(inputs) == 2
-    img, mask = inputs
-    # Input
-    img = _transform_img(img)
-    # Output
-    mask = _transform_label(mask)
-    return img, mask
+    #assert len(inputs) == 2
+    if len(inputs) == 2:
+        img, mask = inputs
+        # Input
+        img = _transform_img(img)
+        # Output
+        mask = _transform_label(mask)
+        return img, mask
+    if len(inputs) == 1:
+        img = inputs[0]
+        img = _transform_img(img)
+        return img
 
 
 def transform_seg_plus(inputs):
